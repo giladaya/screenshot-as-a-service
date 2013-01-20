@@ -76,8 +76,8 @@ module.exports = function(app) {
 
   var callRasterizer = function(rasterizerOptions, callback) {
     request.get(rasterizerOptions, function(error, response, body) {
-      if (error || response.statusCode != 200) {
-        console.log('Error while requesting the rasterizer: %s', error.message);
+      if (error || response.statusCode != 200 || body.indexOf('Error:')==0) {
+        console.log('Error while requesting the rasterizer: %s', (error ? error.message : body));
         rasterizerService.restartService();
         return callback(new Error(body));
       }
