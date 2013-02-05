@@ -103,6 +103,8 @@ module.exports = function(app) {
 
   var sendImageInResponse = function(imagePath, res, callback) {
     console.log('Sending image in response');
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.setHeader("Content-Disposition", "attachment; filename='snappedit.png'");
     res.sendfile(imagePath, function(err) {
       fileCleanerService.addFile(imagePath);
       callback(err);
