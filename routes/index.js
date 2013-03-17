@@ -51,7 +51,6 @@ module.exports = function(app) {
         // for backwards compatibility, try redirecting to the main route if the request looks like /www.google.com
         res.redirect('/?url=' + req.url.substring(1));
     });
-<<<<<<< HEAD
 
     // bits of logic
     var processImageUsingCache = function(originUrl, filePath, res, url, callback) {
@@ -143,8 +142,7 @@ module.exports = function(app) {
         });
 
         return uri;
-    }
-    ;
+    };
 
     parseUri.options = {
         strictMode: false,
@@ -158,22 +156,5 @@ module.exports = function(app) {
             loose: /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
         }
     };
-=======
-    fileStream.pipe(request.post(url, function(err) {
-      if (err) console.log('Error while streaming screenshot: %s', err);
-      callback(err);
-    }));
-  }
-
-  var sendImageInResponse = function(imagePath, res, callback) {
-    console.log('Sending image in response');
-    res.setHeader("Content-Type", "application/octet-stream");
-    res.setHeader("Content-Disposition", "attachment; filename=snappedit.png");
-    res.sendfile(imagePath, function(err) {
-      fileCleanerService.addFile(imagePath);
-      callback(err);
-    });
-  }
->>>>>>> 23b4614385aaa75e6e6bc877059c590cf823bf23
 
 };
