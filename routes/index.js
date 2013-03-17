@@ -34,7 +34,7 @@ module.exports = function(app) {
 
         if (path.existsSync(filePath)) {
             console.log('Request for %s - Found in cache', url);
-            processImageUsingCache(filePath, res, callbackUrl, function(err) {
+            processImageUsingCache(url, filePath, res, callbackUrl, function(err) {
                 if (err)
                     next(err);
             });
@@ -53,14 +53,14 @@ module.exports = function(app) {
     });
 
     // bits of logic
-    var processImageUsingCache = function(filePath, res, url, callback) {
+    var processImageUsingCache = function(originUrl, filePath, res, url, callback) {
         if (url) {
             // asynchronous
             res.send('Will post screenshot to ' + url + ' when processed');
             postImageToUrl(filePath, url, callback);
         } else {
             // synchronous
-            sendImageInResponse(filePath, res, callback);
+            sendImageInResponse(originUrl, filePath, res, callback);
         }
     };
 
@@ -78,7 +78,7 @@ module.exports = function(app) {
             callRasterizer(rasterizerOptions, function(error) {
                 if (error)
                     return callback(error);
-                sendImageInResponse(filePath, res, callback);
+                sendImageInResponse(rasterizerOptions.headers.url, filePath, res, callback);
             });
         }
     };
@@ -111,14 +111,50 @@ module.exports = function(app) {
         }));
     };
 
-    var sendImageInResponse = function(imagePath, res, callback) {
+    var sendImageInResponse = function(originUrl, imagePath, res, callback) {
         console.log('Sending image in response');
         res.setHeader("Content-Type", "application/octet-stream");
-        res.setHeader("Content-Disposition", "attachment; filename='snappedit.png'");
+        res.setHeader("Content-Disposition", "attachment; filename=snapit_" + parseUri(originUrl).host.replace(/\.|:|>|<|\||"|\?|\*|\/|\\/gi, "") + ".png");
         res.sendfile(imagePath, function(err) {
             fileCleanerService.addFile(imagePath);
             callback(err);
         });
+    };
+
+
+    // parseUri 1.2.2
+    // (c) Steven Levithan <stevenlevithan.com>
+    // MIT License
+
+    function parseUri(str) {
+        var o = parseUri.options,
+                m = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
+                uri = {},
+                i = 14;
+
+        while (i--)
+            uri[o.key[i]] = m[i] || "";
+
+        uri[o.q.name] = {};
+        uri[o.key[12]].replace(o.q.parser, function($0, $1, $2) {
+            if ($1)
+                uri[o.q.name][$1] = $2;
+        });
+
+        return uri;
+    };
+
+    parseUri.options = {
+        strictMode: false,
+        key: ["source", "protocol", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "query", "anchor"],
+        q: {
+            name: "queryKey",
+            parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+        },
+        parser: {
+            strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+            loose: /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+        }
     };
 
 };
