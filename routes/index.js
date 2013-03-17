@@ -114,7 +114,7 @@ module.exports = function(app) {
     var sendImageInResponse = function(originUrl, imagePath, res, callback) {
         console.log('Sending image in response');
         res.setHeader("Content-Type", "application/octet-stream");
-        res.setHeader("Content-Disposition", "attachment; filename='snapit_" + parseUri(originUrl).host.replace(/\.|:|>|<|\||"|\?|\*|\/|\\/gi, "") + ".png'");
+        res.setHeader("Content-Disposition", "attachment; filename=snapit_" + parseUri(originUrl).host.replace(/\.|:|>|<|\||"|\?|\*|\/|\\/gi, "") + ".png");
         res.sendfile(imagePath, function(err) {
             fileCleanerService.addFile(imagePath);
             callback(err);
